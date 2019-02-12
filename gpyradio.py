@@ -33,22 +33,9 @@ def play(id_radio):
         print('Error...Radio station not found')
         sys.exit()
 
-def menu(ids, page, limit):
+def menu(ids, page, start, end, total_pages):
     result = ''
     length = len(ids)
-    total_pages = length // limit 
-    if(length == 0):
-        print("No results. Exiting...")
-        sys.exit()
-    if length < page * limit:
-        page -= 1
-        result += "Already on last page\n"
-    elif page < 0:
-        page = 0
-        result += "Already on first page\n"
-    start = page * limit
-    end = min((page + 1) * limit, length)
-    print(length)
     for i, radio in enumerate(ids[start: end]):
         stri = "{}. {}\n".format(start + i + 1, radio['name'])
         result += stri 
@@ -71,9 +58,23 @@ args = parser.parse_args()
 pattern = args.pattern
 
 ids = search(pattern)
+length = len(ids)
+total_pages = length // limit 
 page = 0
 while True:
-    num = menu(ids, page, limit)
+    if length == 0:
+        print("No results. Exiting...")
+        sys.exit()
+    if length < page * limit:
+        page -= 1
+        print("Already on last page\n")
+    elif page < 0:
+        page = 0
+        print("Already on first page\n")
+    start = page * limit
+    end = min((page + 1) * limit, length)
+    
+    num = menu(ids, page, start, end, total_pages)
     if num == "n":
         page += 1
         continue
