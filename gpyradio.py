@@ -1,16 +1,11 @@
-### TODO
-### 2. Choose your player (in a configuration file?)
-### 3. At least for mplayer, print titles ?
-### 4. If only one radio, play it?
-### 5. check if requests response is ok...
-
 import requests
 import argparse
 import sys
 import subprocess
 
 limit = 10
-headers = {'user-agent': 'TEST:webgp.eu-gpyradio/0.0.1'}
+headers = {'user-agent': 'TEST:webgp.eu-gpyradio/0.9'}
+player = 'mplayer' # 'mpv'
 
 def search(pattern):
     pattern = pattern.replace(' ', '%20').strip('"');
@@ -18,7 +13,6 @@ def search(pattern):
     radios = r.json()
     ids = []
     for radio in radios:
-        print(radio['name'])
         ids.append({'id': radio['id'], 'name': radio['name']})
     return ids
 
@@ -27,8 +21,7 @@ def play(id_radio):
     radio = r.json()
     if radio['ok'] == "true":
         print('Now playing...', radio['name'])
-        # print(radio['url']) 
-        subprocess.run(['mplayer', radio['url']])
+        subprocess.run([player, radio['url']])
     else:
         print('Error...Radio station not found')
         sys.exit()
@@ -40,10 +33,15 @@ def menu(ids, page, start, end, total_pages):
         stri = "{}. {}\n".format(start + i + 1, radio['name'])
         result += stri 
     result += "Radios {}-{} of {}".format(start + 1, end, length)
-    nxt = "(n)ext page" if page < total_pages else ""
-    prv = "(p)revious page" if page > 0 else ""
+    options = []
+    if page < total_pages:
+        options.append("(n)ext page") 
+    if page > 0:
+        options.append("(p)revious page")
+    options.append("(q)uit")
+    options_stri = ",".join(options)
     txt = "Choose a radio to stream:"
-    txt += "({} {} (q)uit) : ".format(nxt, prv)
+    txt += "({}) : ".format(options_stri)
     print(result)
     return input(txt)
 
