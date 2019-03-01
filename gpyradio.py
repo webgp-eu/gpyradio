@@ -47,13 +47,19 @@ def menu(ids, page, start, end, total_pages):
 
 
 parser = argparse.ArgumentParser()
-# commands search, play ?
 parser.add_argument('pattern')
-#options: radio id, search terms
-
+parser.add_argument('-l', dest='limit', help='Stations for page')
+parser.add_argument('-p', dest='player', help='Player (default: mplayer)')
 
 args = parser.parse_args()
 pattern = args.pattern
+if args.limit:
+    try:
+        limit = int(args.limit)
+    except ValueError:
+        print("Value not valid for option -l...using 10...")
+if args.player:
+    player = args.player
 
 ids = search(pattern)
 length = len(ids)
